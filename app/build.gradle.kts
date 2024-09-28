@@ -72,5 +72,6 @@ dependencies {
     implementation ("androidx.constraintlayout:constraintlayout:2.0.4")
     implementation ("androidx.recyclerview:recyclerview:1.2.0")
     implementation ("androidx.room:room-runtime:2.3.0")
+    implementation ("com.google.code.gson:gson:2.8.8")
     annotationProcessor ("androidx.room:room-compiler:2.3.0")
 }

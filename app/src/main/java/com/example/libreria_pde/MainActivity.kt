@@ -9,18 +9,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.libreria_pde.ui.theme.Libreria_PDETheme
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class MainActivity : ComponentActivity() {
 
@@ -32,10 +24,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
-        // Inicializamos la lista de novelas
-        novelList = mutableListOf()
+        // Cargar las novelas desde SharedPreferences
+        loadNovelsFromPreferences()
 
-        // Configuramos el RecyclerView
+        // Configuración del RecyclerView
         recyclerView = findViewById(R.id.recyclerViewNovels)
         novelAdapter = NovelAdapter(novelList) { novel -> showNovelDetails(novel) }
         recyclerView.adapter = novelAdapter
@@ -44,9 +36,10 @@ class MainActivity : ComponentActivity() {
         // Botón para agregar una nueva novela
         val addNovelButton: Button = findViewById(R.id.buttonAddNovel)
         addNovelButton.setOnClickListener {
-            addNewNovel() // Método para agregar una novela
+            addNewNovel()
         }
     }
+
 
     // Método para agregar una nueva novela
     private fun addNewNovel() {
@@ -58,36 +51,48 @@ class MainActivity : ComponentActivity() {
         layout.orientation = LinearLayout.VERTICAL
         layout.setPadding(50, 20, 50, 20)
 
-        // Crear campos para el título y detalles de la novela
+        // Crear campos para los datos de la novela
         val titleInput = EditText(this)
         titleInput.hint = "Título de la novela"
         layout.addView(titleInput)
 
-        val detailsInput = EditText(this)
-        detailsInput.hint = "Detalles de la novela"
-        layout.addView(detailsInput)
+        val authorInput = EditText(this)
+        authorInput.hint = "Autor de la novela (opcional)"
+        layout.addView(authorInput)
+
+        val yearInput = EditText(this)
+        yearInput.hint = "Año de publicación (opcional)"
+        layout.addView(yearInput)
+
+        val synopsisInput = EditText(this)
+        synopsisInput.hint = "Sinopsis breve (opcional)"
+        layout.addView(synopsisInput)
 
         dialogBuilder.setView(layout)
 
         // Botones del diálogo
         dialogBuilder.setPositiveButton("Agregar") { _, _ ->
             val title = titleInput.text.toString().trim()
-            val details = detailsInput.text.toString().trim()
+            val author = if (authorInput.text.toString().trim().isEmpty()) "Anónimo" else authorInput.text.toString().trim()
+            val year = yearInput.text.toString().trim()
+            val synopsis = synopsisInput.text.toString().trim()
 
             if (title.isEmpty()) {
                 Toast.makeText(this, "El título no puede estar vacío", Toast.LENGTH_SHORT).show()
                 return@setPositiveButton
             }
 
-            val newNovel = Novel(title, details)
+            val newNovel = Novel(title, author, year, synopsis)
             novelList.add(newNovel)
             novelAdapter.notifyDataSetChanged()
+            saveNovelsToPreferences() // Guardar las novelas después de agregar
         }
         dialogBuilder.setNegativeButton("Cancelar", null)
 
         // Mostrar el diálogo
         dialogBuilder.show()
     }
+
 
     // Método para mostrar los detalles de la novela seleccionada
     private fun showNovelDetails(novel: Novel) {
@@ -97,7 +102,9 @@ class MainActivity : ComponentActivity() {
 
         // Asignar la información de la novela a los TextView correspondientes
         findViewById<TextView>(R.id.textViewNovelTitle).text = novel.title
-        findViewById<TextView>(R.id.textViewNovelDetails).text = novel.details
+        findViewById<TextView>(R.id.textViewNovelAuthor).text = "Autor: ${novel.author}"
+        findViewById<TextView>(R.id.textViewNovelYear).text = "Año: ${novel.year}"
+        findViewById<TextView>(R.id.textViewNovelSynopsis).text = "Sinopsis: ${novel.synopsis}"
         findViewById<TextView>(R.id.textViewReviews).text = novel.reviews.joinToString("\n")
 
         // Botón para marcar como favorita
@@ -108,6 +115,7 @@ class MainActivity : ComponentActivity() {
             // Cambiar el texto del botón según el estado
             favoriteButton.text = if (novel.isFavorite) "Desmarcar Favorita" else "Marcar como Favorita"
             novelAdapter.notifyDataSetChanged()
+            saveNovelsToPreferences() // Guardar las novelas después de cambiar el estado de favorita
         }
 
         // Botón para agregar reseñas
@@ -115,6 +123,7 @@ class MainActivity : ComponentActivity() {
             addReview(novel)
         }
     }
+
 
     // Método para agregar reseñas a la novela seleccionada
     private fun addReview(novel: Novel) {
@@ -142,4 +151,27 @@ class MainActivity : ComponentActivity() {
         // Mostrar el diálogo
         dialogBuilder.show()
     }
+
+    private fun saveNovelsToPreferences() {
+        val sharedPreferences = getSharedPreferences("NovelLibraryPrefs", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+        val json = gson.toJson(novelList)
+        editor.putString("novelList", json)
+        editor.apply()
+    }
+
+    private fun loadNovelsFromPreferences() {
+        val sharedPreferences = getSharedPreferences("NovelLibraryPrefs", MODE_PRIVATE)
+        val gson = Gson()
+        val json = sharedPreferences.getString("novelList", null)
+        val type = object : TypeToken<MutableList<Novel>>() {}.type
+        novelList = if (json != null) {
+            gson.fromJson(json, type)
+        } else {
+            mutableListOf()
+        }
+    }
+
+
 }
