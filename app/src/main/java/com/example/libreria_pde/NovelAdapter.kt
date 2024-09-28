@@ -4,13 +4,15 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class NovelAdapter(
     private var novelList: MutableList<Novel>,
-    private val onNovelClick: (Novel) -> Unit
+    private val onNovelClick: (Novel) -> Unit,
+    private val onDeleteClick: (Novel) -> Unit
 ) : RecyclerView.Adapter<NovelAdapter.NovelViewHolder>() {
 
     inner class NovelViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -18,6 +20,7 @@ class NovelAdapter(
         val textViewAuthor: TextView = itemView.findViewById(R.id.textViewNovelAuthor)
         val textViewYear: TextView = itemView.findViewById(R.id.textViewNovelYear)
         val favoriteIcon: ImageView = itemView.findViewById(R.id.imageViewFavorite)
+        val buttonDelete: Button = itemView.findViewById(R.id.buttonDelete) // Botón de eliminar
 
         fun bind(novel: Novel) {
             textViewTitle.text = novel.title
@@ -27,8 +30,9 @@ class NovelAdapter(
             // Cambiar el ícono de favorito
             favoriteIcon.setImageResource(if (novel.isFavorite) R.drawable.ic_star_filled else R.drawable.ic_star_border)
 
-            // Establecer un clic para mostrar detalles de la novela
+            // Establecer clics
             itemView.setOnClickListener { onNovelClick(novel) }
+            buttonDelete.setOnClickListener { onDeleteClick(novel) } // Eliminar novela
         }
     }
 
@@ -43,9 +47,9 @@ class NovelAdapter(
 
         // Cambiar el color de fondo para diferenciar novelas
         if (position % 2 == 0) {
-            holder.itemView.setBackgroundColor(0xFFE0F7FA.toInt()) // Azul claro
+            holder.itemView.setBackgroundColor(0xFFB2EBF2.toInt()) // Azul claro
         } else {
-            holder.itemView.setBackgroundColor(0xFFE8F5E9.toInt()) // Verde claro
+            holder.itemView.setBackgroundColor(0xFFB2DFDB.toInt()) // Verde claro
         }
     }
 

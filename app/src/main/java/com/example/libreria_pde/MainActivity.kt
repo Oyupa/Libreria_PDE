@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.Calendar
 
 class MainActivity : ComponentActivity() {
 
@@ -29,7 +30,7 @@ class MainActivity : ComponentActivity() {
 
         // Configuración del RecyclerView
         recyclerView = findViewById(R.id.recyclerViewNovels)
-        novelAdapter = NovelAdapter(novelList) { novel -> showNovelDetails(novel) }
+        novelAdapter = NovelAdapter(novelList, { novel -> showNovelDetails(novel) }, { novel -> deleteNovel(novel) })
         recyclerView.adapter = novelAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -38,8 +39,8 @@ class MainActivity : ComponentActivity() {
         addNovelButton.setOnClickListener {
             addNewNovel()
         }
-    }
 
+    }
 
     // Método para agregar una nueva novela
     private fun addNewNovel() {
@@ -51,7 +52,6 @@ class MainActivity : ComponentActivity() {
         layout.orientation = LinearLayout.VERTICAL
         layout.setPadding(50, 20, 50, 20)
 
-        // Crear campos para los datos de la novela
         val titleInput = EditText(this)
         titleInput.hint = "Título de la novela"
         layout.addView(titleInput)
@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
         layout.addView(authorInput)
 
         val yearInput = EditText(this)
-        yearInput.hint = "Año de publicación (opcional)"
+        yearInput.hint = "Año de publicación (opcional, solo números)"
         layout.addView(yearInput)
 
         val synopsisInput = EditText(this)
@@ -70,11 +70,10 @@ class MainActivity : ComponentActivity() {
 
         dialogBuilder.setView(layout)
 
-        // Botones del diálogo
         dialogBuilder.setPositiveButton("Agregar") { _, _ ->
             val title = titleInput.text.toString().trim()
             val author = if (authorInput.text.toString().trim().isEmpty()) "Anónimo" else authorInput.text.toString().trim()
-            val year = yearInput.text.toString().trim()
+            val yearString = yearInput.text.toString().trim()
             val synopsis = synopsisInput.text.toString().trim()
 
             if (title.isEmpty()) {
@@ -82,7 +81,27 @@ class MainActivity : ComponentActivity() {
                 return@setPositiveButton
             }
 
-            val newNovel = Novel(title, author, year, synopsis)
+            // Validar el año
+            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+            val year = if (yearString.isEmpty()) {
+                ""
+            } else {
+                try {
+                    // Intentar convertir el año a un número entero
+                    val yearInt = yearString.toInt()
+                    if (yearInt > currentYear) {
+                        Toast.makeText(this, "El año no puede ser mayor que el año actual.", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                    yearInt.toString() // Convertir de nuevo a cadena para guardar
+                } catch (e: NumberFormatException) {
+                    // Capturar el error si no se puede convertir a entero
+                    Toast.makeText(this, "El año debe ser un número válido.", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+            }
+
+            val newNovel = Novel(title, author, Integer.parseInt(year), synopsis)
             novelList.add(newNovel)
             novelAdapter.notifyDataSetChanged()
             saveNovelsToPreferences() // Guardar las novelas después de agregar
@@ -94,6 +113,14 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    // Método para eliminar una novela
+    private fun deleteNovel(novel: Novel) {
+        novelList.remove(novel)
+        novelAdapter.notifyDataSetChanged()
+        saveNovelsToPreferences() // Guardar las novelas después de eliminar
+    }
+
+    // Método para mostrar los detalles de la novela seleccionada
     // Método para mostrar los detalles de la novela seleccionada
     private fun showNovelDetails(novel: Novel) {
         // Mostrar el layout de detalles
@@ -145,6 +172,7 @@ class MainActivity : ComponentActivity() {
 
             novel.reviews.add(review)
             findViewById<TextView>(R.id.textViewReviews).text = novel.reviews.joinToString("\n")
+            saveNovelsToPreferences() // Guardar las novelas después de agregar reseña
         }
         dialogBuilder.setNegativeButton("Cancelar", null)
 
@@ -172,6 +200,4 @@ class MainActivity : ComponentActivity() {
             mutableListOf()
         }
     }
-
-
 }

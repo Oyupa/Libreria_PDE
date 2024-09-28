@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -6,7 +5,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- RecyclerView para mostrar la lista de novelas -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewNovels"
         android:layout_width="match_parent"
@@ -15,7 +13,6 @@
         android:padding="8dp"
         android:scrollbars="vertical" />
 
-    <!-- Botón para agregar una nueva novela -->
     <Button
         android:id="@+id/buttonAddNovel"
         android:layout_width="match_parent"
@@ -23,7 +20,6 @@
         android:text="Agregar Nueva Novela"
         android:layout_marginBottom="16dp" />
 
-    <!-- Vista para mostrar los detalles de la novela seleccionada -->
     <LinearLayout
         android:id="@+id/novelDetailView"
         android:layout_width="match_parent"
@@ -33,6 +29,7 @@
         android:padding="16dp"
         android:background="#f0f0f0"
         android:elevation="4dp">
+
 
         <TextView
             android:id="@+id/textViewNovelTitle"
