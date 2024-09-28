@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- RecyclerView para mostrar la lista de novelas -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewNovels"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:layoutManager="LinearLayoutManager" />
+
+    <!-- Botón para agregar una nueva novela -->
+    <Button
+        android:id="@+id/buttonAddNovel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Agregar Nueva Novela"
+        android:layout_marginTop="16dp" />
+
+    <!-- Vista para mostrar los detalles de la novela seleccionada -->
+    <LinearLayout
+        android:id="@+id/novelDetailView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <!-- Título de la novela -->
+        <TextView
+            android:id="@+id/textViewNovelTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Título de la Novela"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Detalles de la novela -->
+        <TextView
+            android:id="@+id/textViewNovelDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Detalles de la novela seleccionada aparecerán aquí."
+            android:layout_marginBottom="8dp" />
+
+        <!-- Botón para marcar la novela como favorita -->
+        <Button
+            android:id="@+id/buttonFavorite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Marcar como Favorita" />
+
+        <!-- Sección para reseñas -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reseñas:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/textViewReviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Aquí se mostrarán las reseñas de la novela."
+            android:layout_marginBottom="8dp" />
+
+        <!-- Botón para agregar una reseña -->
+        <Button
+            android:id="@+id/buttonAddReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Agregar Reseña" />
+
+    </LinearLayout>
+
+</LinearLayout>
